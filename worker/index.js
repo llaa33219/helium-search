@@ -38,6 +38,11 @@ export default {
       return handleSearch(query.trim(), env);
     }
 
+    if (url.pathname === '/api/debug' && request.method === 'GET') {
+      const query = url.searchParams.get('q') || 'hello';
+      return handleDebug(query, env);
+    }
+
     try {
       if (env.ASSETS) return await env.ASSETS.fetch(request);
     } catch {
@@ -53,6 +58,82 @@ export default {
 
 const MAX_QUERY_LENGTH = 500;
 
+async function handleDebug(query, env) {
+  const encodedQuery = encodeURIComponent(query);
+  const timeoutMs = parseInt(env.SEARCH_TIMEOUT_MS) || 15000;
+  const detected = detectLanguage(query);
+  const wikiLang = WIKI_LANGS[detected.lang] || 'en';
+
+  const engines = [
+    { name: 'google', skip: !(env.GOOGLE_API_KEY && env.GOOGLE_CX), fn: () => fetchGoogle(encodedQuery, env) },
+    { name: 'bing', skip: !env.BING_API_KEY, fn: () => fetchBing(encodedQuery, env) },
+    { name: 'duckduckgo', skip: false, fn: () => fetchDuckDuckGo(encodedQuery, detected.lang) },
+    { name: 'brave', skip: !env.BRAVE_API_KEY, fn: () => fetchBrave(encodedQuery, env) },
+    { name: 'yandex', skip: !(env.YANDEX_USER && env.YANDEX_KEY), fn: () => fetchYandex(encodedQuery, env) },
+    { name: 'searxng', skip: !env.SEARXNG_URL, fn: () => fetchSearXNG(encodedQuery, env) },
+    { name: `wikipedia-${wikiLang}`, skip: false, fn: () => fetchWikipedia(encodedQuery, wikiLang) },
+    ...(wikiLang !== 'en' ? [{ name: 'wikipedia-en', skip: false, fn: () => fetchWikipedia(encodedQuery, 'en') }] : []),
+    { name: 'wiby', skip: false, fn: () => fetchWiby(encodedQuery) },
+    { name: 'marginalia', skip: false, fn: () => fetchMarginalia(encodedQuery, env) },
+    { name: 'mojeek', skip: !env.MOJEEK_API_KEY, fn: () => fetchMojeek(encodedQuery, env) },
+  ];
+
+  const results = await Promise.allSettled(
+    engines.map(async (engine) => {
+      if (engine.skip) return { name: engine.name, status: 'skipped', reason: 'API key not configured' };
+      const start = Date.now();
+      try {
+        const data = await fetchWithTimeout(engine.fn, timeoutMs);
+        const ms = Date.now() - start;
+        return {
+          name: engine.name,
+          status: 'ok',
+          count: Array.isArray(data) ? data.length : 0,
+          ms,
+          sample: Array.isArray(data) && data.length > 0 ? data[0] : null,
+        };
+      } catch (err) {
+        return {
+          name: engine.name,
+          status: 'error',
+          ms: Date.now() - start,
+          error: err.message || String(err),
+        };
+      }
+    }),
+  );
+
+  const engineResults = results.map((r) => r.status === 'fulfilled' ? r.value : { status: 'error', error: r.reason?.message || String(r.reason) });
+
+  const keys = {
+    QWEN_API_KEY: !!env.QWEN_API_KEY,
+    GOOGLE_API_KEY: !!env.GOOGLE_API_KEY,
+    GOOGLE_CX: !!env.GOOGLE_CX,
+    BING_API_KEY: !!env.BING_API_KEY,
+    BRAVE_API_KEY: !!env.BRAVE_API_KEY,
+    YANDEX_USER: !!env.YANDEX_USER,
+    YANDEX_KEY: !!env.YANDEX_KEY,
+    MOJEEK_API_KEY: !!env.MOJEEK_API_KEY,
+    MARGINALIA_KEY: !!env.MARGINALIA_KEY,
+    SEARXNG_URL: env.SEARXNG_URL || null,
+  };
+
+  return jsonResponse({
+    query,
+    detectedLanguage: detected,
+    timeoutMs,
+    configuredKeys: keys,
+    engines: engineResults,
+    summary: {
+      total: engineResults.length,
+      ok: engineResults.filter((e) => e.status === 'ok').length,
+      skipped: engineResults.filter((e) => e.status === 'skipped').length,
+      errored: engineResults.filter((e) => e.status === 'error').length,
+      totalResults: engineResults.reduce((sum, e) => sum + (e.count || 0), 0),
+    },
+  });
+}
+
 async function handleSearch(query, env) {
   if (query.length > MAX_QUERY_LENGTH) {
     return jsonResponse({ error: `Query too long (max ${MAX_QUERY_LENGTH} characters)` }, 400);
@@ -62,10 +143,11 @@ async function handleSearch(query, env) {
     const rawResults = await fetchAllSources(query, env);
 
     if (rawResults.length === 0) {
+      const detected = detectLanguage(query);
       return jsonResponse({
         type: 'info',
         query,
-        answer: '검색 결과를 찾을 수 없습니다.',
+        answer: NO_RESULTS_MSG[detected.lang] || NO_RESULTS_MSG.en,
         sources: [],
         related: [],
       });
@@ -82,7 +164,8 @@ async function handleSearch(query, env) {
 
 async function fetchAllSources(query, env) {
   const encodedQuery = encodeURIComponent(query);
-  const timeoutMs = parseInt(env.SEARCH_TIMEOUT_MS) || 8000;
+  const timeoutMs = parseInt(env.SEARCH_TIMEOUT_MS) || 15000;
+  const detected = detectLanguage(query);
   const fetchers = [];
 
   if (env.GOOGLE_API_KEY && env.GOOGLE_CX) {
@@ -91,7 +174,7 @@ async function fetchAllSources(query, env) {
   if (env.BING_API_KEY) {
     fetchers.push(fetchWithTimeout(() => fetchBing(encodedQuery, env), timeoutMs));
   }
-  fetchers.push(fetchWithTimeout(() => fetchDuckDuckGo(encodedQuery), timeoutMs));
+  fetchers.push(fetchWithTimeout(() => fetchDuckDuckGo(encodedQuery, detected.lang), timeoutMs));
   if (env.BRAVE_API_KEY) {
     fetchers.push(fetchWithTimeout(() => fetchBrave(encodedQuery, env), timeoutMs));
   }
@@ -101,7 +184,11 @@ async function fetchAllSources(query, env) {
   if (env.SEARXNG_URL) {
     fetchers.push(fetchWithTimeout(() => fetchSearXNG(encodedQuery, env), timeoutMs));
   }
-  fetchers.push(fetchWithTimeout(() => fetchWikipedia(encodedQuery), timeoutMs));
+  const wikiLang = WIKI_LANGS[detected.lang] || 'en';
+  fetchers.push(fetchWithTimeout(() => fetchWikipedia(encodedQuery, wikiLang), timeoutMs));
+  if (wikiLang !== 'en') {
+    fetchers.push(fetchWithTimeout(() => fetchWikipedia(encodedQuery, 'en'), timeoutMs));
+  }
   fetchers.push(fetchWithTimeout(() => fetchWiby(encodedQuery), timeoutMs));
   fetchers.push(fetchWithTimeout(() => fetchMarginalia(encodedQuery, env), timeoutMs));
   if (env.MOJEEK_API_KEY) {
@@ -155,14 +242,15 @@ async function fetchBing(encodedQuery, env) {
   }));
 }
 
-async function fetchDuckDuckGo(encodedQuery) {
+async function fetchDuckDuckGo(encodedQuery, lang) {
+  const region = DDG_REGIONS[lang] || 'us-en';
   const res = await fetch('https://html.duckduckgo.com/html/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     },
-    body: `q=${encodedQuery}`,
+    body: `q=${encodedQuery}&kl=${region}`,
   });
   if (!res.ok) return [];
   const html = await res.text();
@@ -255,6 +343,52 @@ function decodeEntities(str) {
     .replace(/&amp;/g, '&');
 }
 
+function detectLanguage(query) {
+  const cleaned = query.replace(/[\s\d\p{P}]/gu, '');
+  if (!cleaned) return { lang: 'en', script: 'latin' };
+
+  const scripts = [
+    { lang: 'ko', script: 'hangul', regex: /\p{Script=Hangul}/u },
+    { lang: 'ja', script: 'japanese', regex: /[\p{Script=Hiragana}\p{Script=Katakana}]/u },
+    { lang: 'zh', script: 'chinese', regex: /\p{Script=Han}/u },
+    { lang: 'th', script: 'thai', regex: /\p{Script=Thai}/u },
+    { lang: 'ar', script: 'arabic', regex: /\p{Script=Arabic}/u },
+    { lang: 'hi', script: 'devanagari', regex: /\p{Script=Devanagari}/u },
+    { lang: 'ru', script: 'cyrillic', regex: /\p{Script=Cyrillic}/u },
+  ];
+
+  for (const s of scripts) {
+    if (s.regex.test(cleaned)) return { lang: s.lang, script: s.script };
+  }
+  return { lang: 'en', script: 'latin' };
+}
+
+const DDG_REGIONS = {
+  ko: 'kr-kr', ja: 'jp-jp', zh: 'cn-zh', th: 'th-en',
+  ar: 'xa-ar', hi: 'in-en', ru: 'ru-ru', en: 'wt-wt',
+  de: 'de-de', fr: 'fr-fr', es: 'es-es', pt: 'br-pt',
+  it: 'it-it', nl: 'nl-nl', pl: 'pl-pl', tr: 'tr-tr',
+  vi: 'vn-vi', id: 'id-id',
+};
+
+const WIKI_LANGS = {
+  ko: 'ko', ja: 'ja', zh: 'zh', th: 'th', ar: 'ar',
+  hi: 'hi', ru: 'ru', en: 'en', de: 'de', fr: 'fr',
+  es: 'es', pt: 'pt', it: 'it', nl: 'nl', pl: 'pl',
+  tr: 'tr', vi: 'vi', id: 'id',
+};
+
+const NO_RESULTS_MSG = {
+  ko: '검색 결과를 찾을 수 없습니다.',
+  ja: '検索結果が見つかりませんでした。',
+  zh: '未找到搜索结果。',
+  th: 'ไม่พบผลการค้นหา',
+  ar: 'لم يتم العثور على نتائج بحث.',
+  hi: 'खोज परिणाम नहीं मिले।',
+  ru: 'Результаты поиска не найдены.',
+  en: 'No search results found.',
+};
+
 async function fetchSearXNG(encodedQuery, env) {
   const base = (env.SEARXNG_URL || 'https://search.ononoki.org').replace(/\/+$/, '');
   const url = `${base}/search?q=${encodedQuery}&format=json&categories=general`;
@@ -269,16 +403,16 @@ async function fetchSearXNG(encodedQuery, env) {
   }));
 }
 
-async function fetchWikipedia(encodedQuery) {
-  const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encodedQuery}&srlimit=5&origin=*`;
+async function fetchWikipedia(encodedQuery, lang) {
+  const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encodedQuery}&srlimit=5&origin=*`;
   const res = await fetch(url);
   if (!res.ok) return [];
   const data = await res.json();
   return (data.query?.search || []).map((item) => ({
     title: item.title || '',
-    url: `https://en.wikipedia.org/?curid=${item.pageid}`,
+    url: `https://${lang}.wikipedia.org/?curid=${item.pageid}`,
     snippet: stripTags(item.snippet || ''),
-    source: 'wikipedia',
+    source: `wikipedia-${lang}`,
   }));
 }
 
@@ -377,7 +511,7 @@ async function callQwen(query, results, env) {
           max_tokens: 1024,
         }),
       }),
-      10000,
+      15000,
     );
 
     if (!res.ok) {

@@ -8,7 +8,7 @@ binding = "ASSETS"
 
 [vars]
 QWEN_MODEL = "qwen3.5-plus"
-SEARCH_TIMEOUT_MS = "8000"
+SEARCH_TIMEOUT_MS = "15000"
 MAX_RESULTS = "15"
 
 # API keys should be set as secrets via `wrangler secret put`:

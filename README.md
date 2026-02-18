@@ -7,7 +7,7 @@
 | 구성 요소 | 기술 |
 |-----------|------|
 | AI 모델 | Qwen API (DashScope) |
-| 검색 소스 | Google, Bing, DuckDuckGo, Brave, Yandex, SearXNG, Wikipedia, Wiby, Marginalia, Mojeek |
+| 검색 소스 | Google, Bing, DuckDuckGo, Brave, Yandex, SearXNG, Wikipedia (다국어), Wiby, Marginalia, Mojeek |
 | 백엔드 | Cloudflare Workers |
 | 프론트엔드 | 정적 HTML + CSS + JS |
 | 배포 | Cloudflare (Pages + Workers) |
@@ -52,6 +52,23 @@ wrangler secret put SEARXNG_URL           # 선택: SearXNG 인스턴스 URL
 
 > DuckDuckGo, Wikipedia, Wiby, Marginalia는 API 키 없이 동작합니다. SearXNG는 자체 인스턴스 URL 설정 시에만 사용됩니다.
 
+## 다국어 지원
+
+쿼리의 Unicode 스크립트를 분석하여 자동으로 언어를 감지하고, 해당 언어의 Wikipedia와 DuckDuckGo 지역 검색을 활성화합니다.
+
+| 언어 | 감지 방식 | Wikipedia | DuckDuckGo 지역 |
+|------|-----------|-----------|------------------|
+| 한국어 | Hangul | ko.wikipedia.org | kr-kr |
+| 일본어 | Hiragana/Katakana | ja.wikipedia.org | jp-jp |
+| 중국어 | Han (CJK) | zh.wikipedia.org | cn-zh |
+| 러시아어 | Cyrillic | ru.wikipedia.org | ru-ru |
+| 아랍어 | Arabic | ar.wikipedia.org | xa-ar |
+| 힌디어 | Devanagari | hi.wikipedia.org | in-en |
+| 태국어 | Thai | th.wikipedia.org | th-en |
+| 영어/기타 | Latin | en.wikipedia.org | wt-wt |
+
+비영어 쿼리는 해당 언어 Wikipedia + 영어 Wikipedia를 **동시에** 검색합니다.
+
 ### 3. 로컬 개발
 
 ```bash
@@ -70,7 +87,9 @@ wrangler deploy
 ## 검색 흐름
 
 ```
-사용자 입력 → Worker가 검색엔진 최대 10개 병렬 호출 (8초 타임아웃)
+사용자 입력 → 언어 자동 감지 (Unicode 스크립트 분석)
+           → Worker가 검색엔진 최대 11개 병렬 호출 (15초 타임아웃)
+           → 다국어 Wikipedia + DuckDuckGo 지역화 검색
            → 결과 수집 & URL 기준 중복 제거 (최대 15개)
            → Qwen API로 의도 분류 + 요약/추천
            → JSON 응답 → 프론트엔드 렌더링
@@ -107,7 +126,7 @@ wrangler deploy
 |------|------|------|
 | `QWEN_API_KEY` | ✅ | DashScope API 키 |
 | `QWEN_MODEL` | ❌ | 모델명 (기본: qwen3.5-plus) |
-| `SEARCH_TIMEOUT_MS` | ❌ | 검색 타임아웃 (기본: 8000ms) |
+| `SEARCH_TIMEOUT_MS` | ❌ | 검색 타임아웃 (기본: 15000ms) |
 | `MAX_RESULTS` | ❌ | Qwen 전달 최대 결과 수 (기본: 15) |
 | `GOOGLE_API_KEY` | ❌ | Google Custom Search API 키 |
 | `GOOGLE_CX` | ❌ | Google Search Engine ID |
