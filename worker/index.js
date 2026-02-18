@@ -43,6 +43,39 @@ export default {
       return handleDebug(query, env);
     }
 
+    if (url.pathname === '/api/test-fetch' && request.method === 'GET') {
+      const query = url.searchParams.get('q') || 'hello';
+      const encoded = encodeURIComponent(query);
+      const tests = {};
+
+      try {
+        const wikiUrl = `https://ko.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encoded}&srlimit=2&origin=*`;
+        const wikiRes = await fetch(wikiUrl);
+        const wikiBody = await wikiRes.text();
+        tests.wikipedia_ko = { status: wikiRes.status, bodyLength: wikiBody.length, body: wikiBody.slice(0, 500) };
+      } catch (e) { tests.wikipedia_ko = { error: e.message }; }
+
+      try {
+        const ddgRes = await fetch('https://html.duckduckgo.com/html/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+          body: `q=${encoded}&kl=kr-kr`,
+        });
+        const ddgBody = await ddgRes.text();
+        const resultCount = (ddgBody.match(/result__body/g) || []).length;
+        tests.duckduckgo = { status: ddgRes.status, bodyLength: ddgBody.length, resultCount, bodySnippet: ddgBody.slice(0, 300) };
+      } catch (e) { tests.duckduckgo = { error: e.message }; }
+
+      try {
+        const enWikiUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encoded}&srlimit=2&origin=*`;
+        const enRes = await fetch(enWikiUrl);
+        const enBody = await enRes.text();
+        tests.wikipedia_en = { status: enRes.status, bodyLength: enBody.length, body: enBody.slice(0, 500) };
+      } catch (e) { tests.wikipedia_en = { error: e.message }; }
+
+      return jsonResponse({ query, tests });
+    }
+
     try {
       if (env.ASSETS) return await env.ASSETS.fetch(request);
     } catch {
