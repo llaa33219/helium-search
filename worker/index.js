@@ -6,6 +6,8 @@ const CORS_HEADERS = {
 
 const QWEN_BASE_URL = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions';
 
+const BOT_USER_AGENT = 'HeliumSearch/1.0 (https://github.com/llaa33219/helium-search)';
+
 const SYSTEM_PROMPT = `You are Helium Search AI. Analyze search results and respond in JSON only.
 
 Rules:
@@ -41,39 +43,6 @@ export default {
     if (url.pathname === '/api/debug' && request.method === 'GET') {
       const query = url.searchParams.get('q') || 'hello';
       return handleDebug(query, env);
-    }
-
-    if (url.pathname === '/api/test-fetch' && request.method === 'GET') {
-      const query = url.searchParams.get('q') || 'hello';
-      const encoded = encodeURIComponent(query);
-      const tests = {};
-
-      try {
-        const wikiUrl = `https://ko.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encoded}&srlimit=2&origin=*`;
-        const wikiRes = await fetch(wikiUrl);
-        const wikiBody = await wikiRes.text();
-        tests.wikipedia_ko = { status: wikiRes.status, bodyLength: wikiBody.length, body: wikiBody.slice(0, 500) };
-      } catch (e) { tests.wikipedia_ko = { error: e.message }; }
-
-      try {
-        const ddgRes = await fetch('https://html.duckduckgo.com/html/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
-          body: `q=${encoded}&kl=kr-kr`,
-        });
-        const ddgBody = await ddgRes.text();
-        const resultCount = (ddgBody.match(/result__body/g) || []).length;
-        tests.duckduckgo = { status: ddgRes.status, bodyLength: ddgBody.length, resultCount, bodySnippet: ddgBody.slice(0, 300) };
-      } catch (e) { tests.duckduckgo = { error: e.message }; }
-
-      try {
-        const enWikiUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encoded}&srlimit=2&origin=*`;
-        const enRes = await fetch(enWikiUrl);
-        const enBody = await enRes.text();
-        tests.wikipedia_en = { status: enRes.status, bodyLength: enBody.length, body: enBody.slice(0, 500) };
-      } catch (e) { tests.wikipedia_en = { error: e.message }; }
-
-      return jsonResponse({ query, tests });
     }
 
     try {
@@ -276,7 +245,7 @@ async function fetchBing(encodedQuery, env) {
 }
 
 async function fetchDuckDuckGo(encodedQuery, lang) {
-  const region = DDG_REGIONS[lang] || 'us-en';
+  const region = DDG_REGIONS[lang] || 'wt-wt';
   const res = await fetch('https://html.duckduckgo.com/html/', {
     method: 'POST',
     headers: {
@@ -285,7 +254,7 @@ async function fetchDuckDuckGo(encodedQuery, lang) {
     },
     body: `q=${encodedQuery}&kl=${region}`,
   });
-  if (!res.ok) return [];
+  if (res.status !== 200) return [];
   const html = await res.text();
   const results = [];
   const blocks = html.split('class="result__body"');
@@ -425,7 +394,7 @@ const NO_RESULTS_MSG = {
 async function fetchSearXNG(encodedQuery, env) {
   const base = (env.SEARXNG_URL || 'https://search.ononoki.org').replace(/\/+$/, '');
   const url = `${base}/search?q=${encodedQuery}&format=json&categories=general`;
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: { 'User-Agent': BOT_USER_AGENT } });
   if (!res.ok) return [];
   const data = await res.json();
   return (data.results || []).slice(0, 10).map((item) => ({
@@ -438,7 +407,7 @@ async function fetchSearXNG(encodedQuery, env) {
 
 async function fetchWikipedia(encodedQuery, lang) {
   const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encodedQuery}&srlimit=5&origin=*`;
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: { 'Api-User-Agent': BOT_USER_AGENT } });
   if (!res.ok) return [];
   const data = await res.json();
   return (data.query?.search || []).map((item) => ({
@@ -451,7 +420,7 @@ async function fetchWikipedia(encodedQuery, lang) {
 
 async function fetchWiby(encodedQuery) {
   const url = `https://wiby.me/json/?q=${encodedQuery}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: { 'User-Agent': BOT_USER_AGENT } });
   if (!res.ok) return [];
   const data = await res.json();
   if (!Array.isArray(data)) return [];
@@ -466,7 +435,7 @@ async function fetchWiby(encodedQuery) {
 async function fetchMarginalia(encodedQuery, env) {
   const key = env.MARGINALIA_KEY || 'public';
   const url = `https://api.marginalia.nu/${encodeURIComponent(key)}/search/${encodedQuery}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: { 'User-Agent': BOT_USER_AGENT } });
   if (!res.ok) return [];
   const data = await res.json();
   return (data.results || []).slice(0, 10).map((item) => ({
