@@ -1,6 +1,6 @@
 # Helium Search
 
-> 가볍고 깔끔한 AI 검색엔진. 답만 주고, 군더더기 없다.
+> A lightweight and clean AI search engine.
 
 ## 기술 스택
 
