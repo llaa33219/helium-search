@@ -38,7 +38,16 @@ export default {
       return handleSearch(query.trim(), env);
     }
 
-    return jsonResponse({ error: 'Not found' }, 404);
+    try {
+      if (env.ASSETS) return await env.ASSETS.fetch(request);
+    } catch {
+      // fall through to 404
+    }
+
+    return new Response('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Not Found</title></head><body><h1>404 — Not Found</h1></body></html>', {
+      status: 404,
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    });
   },
 };
 
