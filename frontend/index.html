@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +18,39 @@
 
   <!-- Home View -->
   <div id="home-view" class="view home-view active">
+    <div class="lang-switcher" id="home-lang-switcher">
+      <button class="lang-btn" type="button" aria-label="Language">
+        <svg class="lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/>
+        </svg>
+        <span class="lang-btn-text">English</span>
+        <svg class="lang-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="lang-dropdown">
+        <button class="lang-option" data-lang="en">English</button>
+        <button class="lang-option" data-lang="ko">한국어</button>
+        <button class="lang-option" data-lang="ja">日本語</button>
+        <button class="lang-option" data-lang="zh">中文</button>
+        <button class="lang-option" data-lang="es">Español</button>
+        <button class="lang-option" data-lang="fr">Français</button>
+        <button class="lang-option" data-lang="de">Deutsch</button>
+        <button class="lang-option" data-lang="ru">Русский</button>
+        <button class="lang-option" data-lang="pt">Português</button>
+        <button class="lang-option" data-lang="ar">العربية</button>
+        <button class="lang-option" data-lang="vi">Tiếng Việt</button>
+        <button class="lang-option" data-lang="th">ไทย</button>
+        <button class="lang-option" data-lang="hi">हिन्दी</button>
+        <button class="lang-option" data-lang="it">Italiano</button>
+        <button class="lang-option" data-lang="tr">Türkçe</button>
+        <button class="lang-option" data-lang="nl">Nederlands</button>
+        <button class="lang-option" data-lang="pl">Polski</button>
+        <button class="lang-option" data-lang="id">Bahasa Indonesia</button>
+      </div>
+    </div>
     <div class="home-content">
       <h1 class="brand">
         <span class="brand-he">He</span>lium
@@ -33,11 +66,11 @@
             type="text"
             id="home-search-input"
             class="search-input"
-            placeholder="무엇이든 검색하세요..."
+            placeholder="Search anything..."
             autocomplete="off"
             autofocus
           >
-          <button type="button" class="search-clear hidden" id="home-clear" aria-label="지우기">
+          <button type="button" class="search-clear hidden" id="home-clear" aria-label="Clear">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -63,16 +96,45 @@
             type="text"
             id="results-search-input"
             class="search-input"
-            placeholder="검색어 입력..."
+            placeholder="Enter search query..."
             autocomplete="off"
           >
-          <button type="button" class="search-clear hidden" id="results-clear" aria-label="지우기">
+          <button type="button" class="search-clear hidden" id="results-clear" aria-label="Clear">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
         </div>
       </form>
+      <div class="lang-switcher lang-switcher--results">
+        <button class="lang-btn lang-btn--compact" type="button" aria-label="Language">
+          <svg class="lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/>
+          </svg>
+        </button>
+        <div class="lang-dropdown">
+          <button class="lang-option" data-lang="en">English</button>
+          <button class="lang-option" data-lang="ko">한국어</button>
+          <button class="lang-option" data-lang="ja">日本語</button>
+          <button class="lang-option" data-lang="zh">中文</button>
+          <button class="lang-option" data-lang="es">Español</button>
+          <button class="lang-option" data-lang="fr">Français</button>
+          <button class="lang-option" data-lang="de">Deutsch</button>
+          <button class="lang-option" data-lang="ru">Русский</button>
+          <button class="lang-option" data-lang="pt">Português</button>
+          <button class="lang-option" data-lang="ar">العربية</button>
+          <button class="lang-option" data-lang="vi">Tiếng Việt</button>
+          <button class="lang-option" data-lang="th">ไทย</button>
+          <button class="lang-option" data-lang="hi">हिन्दी</button>
+          <button class="lang-option" data-lang="it">Italiano</button>
+          <button class="lang-option" data-lang="tr">Türkçe</button>
+          <button class="lang-option" data-lang="nl">Nederlands</button>
+          <button class="lang-option" data-lang="pl">Polski</button>
+          <button class="lang-option" data-lang="id">Bahasa Indonesia</button>
+        </div>
+      </div>
     </header>
 
     <main class="results-content">
@@ -81,7 +143,7 @@
         <div class="loading-dots">
           <span></span><span></span><span></span>
         </div>
-        <p class="loading-text">검색 중...</p>
+        <p class="loading-text">Searching...</p>
       </div>
 
       <!-- Error -->
@@ -98,7 +160,7 @@
 
       <!-- Ad Placeholder -->
       <div id="ad-slot" class="ad-slot hidden">
-        <div class="ad-label">광고</div>
+        <div class="ad-label">Ad</div>
         <div class="ad-content">
           <!-- Google AdSense will be inserted here -->
         </div>
