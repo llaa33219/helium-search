@@ -658,6 +658,8 @@ body {
   padding: 6px;
   z-index: 300;
   animation: dropdownFadeIn 150ms ease;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
 }
 
 .lang-dropdown.open {

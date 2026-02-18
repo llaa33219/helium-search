@@ -336,9 +336,13 @@ function initLanguageSwitcher() {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       document.querySelectorAll('.lang-dropdown.open').forEach((d) => {
-        if (d !== dropdown) d.classList.remove('open');
+        if (d !== dropdown) {
+          d.classList.remove('open');
+          d.closest('.lang-switcher').querySelector('.lang-btn').setAttribute('aria-expanded', 'false');
+        }
       });
-      dropdown.classList.toggle('open');
+      const isOpen = dropdown.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(isOpen));
     });
   });
 
@@ -353,7 +357,10 @@ function initLanguageSwitcher() {
   });
 
   document.addEventListener('click', () => {
-    document.querySelectorAll('.lang-dropdown.open').forEach((d) => d.classList.remove('open'));
+    document.querySelectorAll('.lang-dropdown.open').forEach((d) => {
+      d.classList.remove('open');
+      d.closest('.lang-switcher').querySelector('.lang-btn').setAttribute('aria-expanded', 'false');
+    });
   });
 }
 
@@ -513,7 +520,7 @@ function renderSources(sources) {
   const html = `
     <button class="sources-toggle" id="sources-toggle-btn">
       <span class="sources-toggle-icon">▸</span>
-      ${t('sourcesCount')(count)}
+      ${typeof t('sourcesCount') === 'function' ? t('sourcesCount')(count) : `${t('viewSources')} (${count})`}
     </button>
     <div class="sources-list" id="sources-list">
       ${sources.map((s) => `
