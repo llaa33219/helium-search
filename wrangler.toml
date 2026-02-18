@@ -1,4 +1,4 @@
-name = "helium-search-worker"
+name = "helium-search"
 main = "worker/index.js"
 compatibility_date = "2024-12-01"
 
