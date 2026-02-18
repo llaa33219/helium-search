@@ -179,9 +179,9 @@ async function fetchDuckDuckGo(encodedQuery) {
     const url = uddgMatch ? decodeURIComponent(uddgMatch[1]) : '';
     if (!url || !url.startsWith('http')) continue;
     results.push({
-      title: stripTags(titleMatch[1]).trim(),
+      title: decodeEntities(stripTags(titleMatch[1])).trim(),
       url,
-      snippet: snippetMatch ? stripTags(snippetMatch[1]).trim() : '',
+      snippet: snippetMatch ? decodeEntities(stripTags(snippetMatch[1])).trim() : '',
       source: 'duckduckgo',
     });
   }
@@ -242,6 +242,17 @@ function parseYandexXml(xml) {
 
 function stripTags(str) {
   return str.replace(/<[^>]*>/g, '').trim();
+}
+
+function decodeEntities(str) {
+  return str
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(n))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => String.fromCharCode(parseInt(n, 16)))
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
 }
 
 async function fetchSearXNG(encodedQuery, env) {
