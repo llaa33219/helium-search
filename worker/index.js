@@ -82,7 +82,7 @@ async function handleSearch(query, env) {
 
 async function fetchAllSources(query, env) {
   const encodedQuery = encodeURIComponent(query);
-  const timeoutMs = parseInt(env.SEARCH_TIMEOUT_MS) || 3000;
+  const timeoutMs = parseInt(env.SEARCH_TIMEOUT_MS) || 8000;
   const fetchers = [];
 
   if (env.GOOGLE_API_KEY && env.GOOGLE_CX) {
@@ -98,14 +98,15 @@ async function fetchAllSources(query, env) {
   if (env.YANDEX_USER && env.YANDEX_KEY) {
     fetchers.push(fetchWithTimeout(() => fetchYandex(encodedQuery, env), timeoutMs));
   }
-  fetchers.push(fetchWithTimeout(() => fetchSearXNG(encodedQuery, env), timeoutMs));
+  if (env.SEARXNG_URL) {
+    fetchers.push(fetchWithTimeout(() => fetchSearXNG(encodedQuery, env), timeoutMs));
+  }
   fetchers.push(fetchWithTimeout(() => fetchWikipedia(encodedQuery), timeoutMs));
   fetchers.push(fetchWithTimeout(() => fetchWiby(encodedQuery), timeoutMs));
   fetchers.push(fetchWithTimeout(() => fetchMarginalia(encodedQuery, env), timeoutMs));
   if (env.MOJEEK_API_KEY) {
     fetchers.push(fetchWithTimeout(() => fetchMojeek(encodedQuery, env), timeoutMs));
   }
-  fetchers.push(fetchWithTimeout(() => fetchQwant(encodedQuery), timeoutMs));
 
   const settled = await Promise.allSettled(fetchers);
   const results = [];
@@ -155,42 +156,35 @@ async function fetchBing(encodedQuery, env) {
 }
 
 async function fetchDuckDuckGo(encodedQuery) {
-  const url = `https://api.duckduckgo.com/?q=${encodedQuery}&format=json&no_html=1&no_redirect=1`;
-  const res = await fetch(url);
+  const res = await fetch('https://html.duckduckgo.com/html/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    },
+    body: `q=${encodedQuery}`,
+  });
   if (!res.ok) return [];
-  const data = await res.json();
+  const html = await res.text();
   const results = [];
-
-  if (data.AbstractText && data.AbstractURL) {
+  const blocks = html.split('class="result__body"');
+  for (let i = 1; i < blocks.length && results.length < 10; i++) {
+    const block = blocks[i];
+    const titleMatch = block.match(/class="result__a"[^>]*>([\s\S]*?)<\/a>/);
+    const hrefMatch = block.match(/class="result__a"[^>]*href="([^"]*)"/);
+    const snippetMatch = block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
+    if (!titleMatch || !hrefMatch) continue;
+    const href = hrefMatch[1].replace(/&amp;/g, '&');
+    const uddgMatch = href.match(/[?&]uddg=([^&]+)/);
+    const url = uddgMatch ? decodeURIComponent(uddgMatch[1]) : '';
+    if (!url || !url.startsWith('http')) continue;
     results.push({
-      title: data.AbstractSource || 'DuckDuckGo',
-      url: data.AbstractURL,
-      snippet: data.AbstractText,
+      title: stripTags(titleMatch[1]).trim(),
+      url,
+      snippet: snippetMatch ? stripTags(snippetMatch[1]).trim() : '',
       source: 'duckduckgo',
     });
   }
-
-  for (const topic of data.RelatedTopics || []) {
-    if (topic.FirstURL && topic.Text) {
-      results.push({
-        title: topic.Text.split(' - ')[0] || topic.Text,
-        url: topic.FirstURL,
-        snippet: topic.Text,
-        source: 'duckduckgo',
-      });
-    }
-    for (const sub of topic.Topics || []) {
-      if (sub.FirstURL && sub.Text) {
-        results.push({
-          title: sub.Text.split(' - ')[0] || sub.Text,
-          url: sub.FirstURL,
-          snippet: sub.Text,
-          source: 'duckduckgo',
-        });
-      }
-    }
-  }
-
   return results;
 }
 
@@ -315,21 +309,6 @@ async function fetchMojeek(encodedQuery, env) {
     url: item.url || '',
     snippet: item.desc || '',
     source: 'mojeek',
-  }));
-}
-
-async function fetchQwant(encodedQuery) {
-  const url = `https://api.qwant.com/v3/search/web?q=${encodedQuery}&count=10&locale=en_US&offset=0`;
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; HeliumSearch/1.0)' },
-  });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data.data?.result?.items || []).slice(0, 10).map((item) => ({
-    title: item.title || '',
-    url: item.url || '',
-    snippet: item.desc || '',
-    source: 'qwant',
   }));
 }
 
