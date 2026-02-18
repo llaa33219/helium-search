@@ -21,4 +21,6 @@ MAX_RESULTS = "15"
 #   wrangler secret put YANDEX_KEY
 #   wrangler secret put MOJEEK_API_KEY
 #   wrangler secret put MARGINALIA_KEY
+
+# Non-secret config (can also be set in [vars] above):
 #   wrangler secret put SEARXNG_URL

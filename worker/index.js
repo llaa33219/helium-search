@@ -251,7 +251,7 @@ function stripTags(str) {
 }
 
 async function fetchSearXNG(encodedQuery, env) {
-  const base = env.SEARXNG_URL || 'https://search.ononoki.org';
+  const base = (env.SEARXNG_URL || 'https://search.ononoki.org').replace(/\/+$/, '');
   const url = `${base}/search?q=${encodedQuery}&format=json&categories=general`;
   const res = await fetch(url);
   if (!res.ok) return [];
