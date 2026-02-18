@@ -7,7 +7,7 @@
 | 구성 요소 | 기술 |
 |-----------|------|
 | AI 모델 | Qwen API (DashScope) |
-| 검색 소스 | Google, Bing, DuckDuckGo, Brave, Yandex |
+| 검색 소스 | Google, Bing, DuckDuckGo, Brave, Yandex, SearXNG, Wikipedia, Wiby, Marginalia, Mojeek, Qwant |
 | 백엔드 | Cloudflare Workers |
 | 프론트엔드 | 정적 HTML + CSS + JS |
 | 배포 | Cloudflare (Pages + Workers) |
@@ -45,9 +45,12 @@ wrangler secret put BING_API_KEY          # 선택: Bing Web Search API 키
 wrangler secret put BRAVE_API_KEY         # 선택: Brave Search API 키
 wrangler secret put YANDEX_USER           # 선택: Yandex 사용자명
 wrangler secret put YANDEX_KEY            # 선택: Yandex API 키
+wrangler secret put MOJEEK_API_KEY        # 선택: Mojeek Search API 키
+wrangler secret put MARGINALIA_KEY        # 선택: Marginalia API 키 (기본: public)
+wrangler secret put SEARXNG_URL           # 선택: SearXNG 인스턴스 URL
 ```
 
-> 검색 엔진은 최소 1개 이상 설정하세요. DuckDuckGo는 API 키 없이 동작합니다.
+> DuckDuckGo, SearXNG, Wikipedia, Wiby, Marginalia, Qwant는 API 키 없이 동작합니다.
 
 ### 3. 로컬 개발
 
@@ -67,7 +70,7 @@ wrangler deploy
 ## 검색 흐름
 
 ```
-사용자 입력 → Worker가 검색엔진 5개 병렬 호출 (3초 타임아웃)
+사용자 입력 → Worker가 검색엔진 11개 병렬 호출 (3초 타임아웃)
            → 결과 수집 & URL 기준 중복 제거 (최대 15개)
            → Qwen API로 의도 분류 + 요약/추천
            → JSON 응답 → 프론트엔드 렌더링
@@ -112,3 +115,6 @@ wrangler deploy
 | `BRAVE_API_KEY` | ❌ | Brave Search API 키 |
 | `YANDEX_USER` | ❌ | Yandex XML 사용자명 |
 | `YANDEX_KEY` | ❌ | Yandex XML API 키 |
+| `SEARXNG_URL` | ❌ | SearXNG 인스턴스 URL (기본: search.ononoki.org) |
+| `MARGINALIA_KEY` | ❌ | Marginalia API 키 (기본: public) |
+| `MOJEEK_API_KEY` | ❌ | Mojeek Search API 키 |

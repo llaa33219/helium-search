@@ -19,3 +19,6 @@ MAX_RESULTS = "15"
 #   wrangler secret put BRAVE_API_KEY
 #   wrangler secret put YANDEX_USER
 #   wrangler secret put YANDEX_KEY
+#   wrangler secret put MOJEEK_API_KEY
+#   wrangler secret put MARGINALIA_KEY
+#   wrangler secret put SEARXNG_URL

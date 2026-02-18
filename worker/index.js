@@ -98,6 +98,14 @@ async function fetchAllSources(query, env) {
   if (env.YANDEX_USER && env.YANDEX_KEY) {
     fetchers.push(fetchWithTimeout(() => fetchYandex(encodedQuery, env), timeoutMs));
   }
+  fetchers.push(fetchWithTimeout(() => fetchSearXNG(encodedQuery, env), timeoutMs));
+  fetchers.push(fetchWithTimeout(() => fetchWikipedia(encodedQuery), timeoutMs));
+  fetchers.push(fetchWithTimeout(() => fetchWiby(encodedQuery), timeoutMs));
+  fetchers.push(fetchWithTimeout(() => fetchMarginalia(encodedQuery, env), timeoutMs));
+  if (env.MOJEEK_API_KEY) {
+    fetchers.push(fetchWithTimeout(() => fetchMojeek(encodedQuery, env), timeoutMs));
+  }
+  fetchers.push(fetchWithTimeout(() => fetchQwant(encodedQuery), timeoutMs));
 
   const settled = await Promise.allSettled(fetchers);
   const results = [];
@@ -240,6 +248,89 @@ function parseYandexXml(xml) {
 
 function stripTags(str) {
   return str.replace(/<[^>]*>/g, '').trim();
+}
+
+async function fetchSearXNG(encodedQuery, env) {
+  const base = env.SEARXNG_URL || 'https://search.ononoki.org';
+  const url = `${base}/search?q=${encodedQuery}&format=json&categories=general`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.results || []).slice(0, 10).map((item) => ({
+    title: item.title || '',
+    url: item.url || '',
+    snippet: item.content || '',
+    source: 'searxng',
+  }));
+}
+
+async function fetchWikipedia(encodedQuery) {
+  const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encodedQuery}&srlimit=5&origin=*`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.query?.search || []).map((item) => ({
+    title: item.title || '',
+    url: `https://en.wikipedia.org/?curid=${item.pageid}`,
+    snippet: stripTags(item.snippet || ''),
+    source: 'wikipedia',
+  }));
+}
+
+async function fetchWiby(encodedQuery) {
+  const url = `https://wiby.me/json/?q=${encodedQuery}`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const data = await res.json();
+  if (!Array.isArray(data)) return [];
+  return data.slice(0, 10).map((item) => ({
+    title: item.Title || '',
+    url: item.URL || '',
+    snippet: item.Snippet || '',
+    source: 'wiby',
+  }));
+}
+
+async function fetchMarginalia(encodedQuery, env) {
+  const key = env.MARGINALIA_KEY || 'public';
+  const url = `https://api.marginalia.nu/${encodeURIComponent(key)}/search/${encodedQuery}`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.results || []).slice(0, 10).map((item) => ({
+    title: item.title || '',
+    url: item.url || '',
+    snippet: item.description || '',
+    source: 'marginalia',
+  }));
+}
+
+async function fetchMojeek(encodedQuery, env) {
+  const url = `https://api.mojeek.com/search?q=${encodedQuery}&api_key=${encodeURIComponent(env.MOJEEK_API_KEY)}&fmt=json`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.response?.results || []).slice(0, 10).map((item) => ({
+    title: item.title || '',
+    url: item.url || '',
+    snippet: item.desc || '',
+    source: 'mojeek',
+  }));
+}
+
+async function fetchQwant(encodedQuery) {
+  const url = `https://api.qwant.com/v3/search/web?q=${encodedQuery}&count=10&locale=en_US&offset=0`;
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; HeliumSearch/1.0)' },
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.data?.result?.items || []).slice(0, 10).map((item) => ({
+    title: item.title || '',
+    url: item.url || '',
+    snippet: item.desc || '',
+    source: 'qwant',
+  }));
 }
 
 function deduplicateResults(results, maxResults) {
