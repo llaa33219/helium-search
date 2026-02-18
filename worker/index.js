@@ -407,7 +407,7 @@ async function fetchSearXNG(encodedQuery, env) {
 
 async function fetchWikipedia(encodedQuery, lang) {
   const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encodedQuery}&srlimit=5&origin=*`;
-  const res = await fetch(url, { headers: { 'Api-User-Agent': BOT_USER_AGENT } });
+  const res = await fetch(url, { headers: { 'User-Agent': BOT_USER_AGENT, 'Api-User-Agent': BOT_USER_AGENT } });
   if (!res.ok) return [];
   const data = await res.json();
   return (data.query?.search || []).map((item) => ({
