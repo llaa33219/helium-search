@@ -1,0 +1,13 @@
+{
+  "name": "helium-search",
+  "version": "1.0.0",
+  "private": true,
+  "description": "가볍고 깔끔한 AI 검색엔진",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

@@ -1,0 +1,17 @@
+name = "helium-search-worker"
+main = "worker/index.js"
+compatibility_date = "2024-12-01"
+
+[vars]
+QWEN_MODEL = "qwen-turbo"
+SEARCH_TIMEOUT_MS = "3000"
+MAX_RESULTS = "15"
+
+# API keys should be set as secrets via `wrangler secret put`:
+#   wrangler secret put QWEN_API_KEY
+#   wrangler secret put GOOGLE_API_KEY
+#   wrangler secret put GOOGLE_CX
+#   wrangler secret put BING_API_KEY
+#   wrangler secret put BRAVE_API_KEY
+#   wrangler secret put YANDEX_USER
+#   wrangler secret put YANDEX_KEY

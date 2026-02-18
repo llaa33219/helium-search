@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helium Search</title>
+  <meta name="description" content="가볍고 깔끔한 AI 검색엔진. 답만 주고, 군더더기 없다.">
+  <meta property="og:title" content="Helium Search">
+  <meta property="og:description" content="가볍고 깔끔한 AI 검색엔진">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Home View -->
+  <div id="home-view" class="view home-view active">
+    <div class="home-content">
+      <h1 class="brand">
+        <span class="brand-he">He</span>lium
+      </h1>
+      <p class="tagline">가볍고 깔끔한 AI 검색</p>
+      <form class="search-form search-form--home" id="home-search-form">
+        <div class="search-input-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            id="home-search-input"
+            class="search-input"
+            placeholder="무엇이든 검색하세요..."
+            autocomplete="off"
+            autofocus
+          >
+          <button type="button" class="search-clear hidden" id="home-clear" aria-label="지우기">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Results View -->
+  <div id="results-view" class="view results-view">
+    <header class="results-header">
+      <a href="/" class="results-brand" id="logo-link">
+        <span class="brand-he">He</span>lium
+      </a>
+      <form class="search-form search-form--results" id="results-search-form">
+        <div class="search-input-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            id="results-search-input"
+            class="search-input"
+            placeholder="검색어 입력..."
+            autocomplete="off"
+          >
+          <button type="button" class="search-clear hidden" id="results-clear" aria-label="지우기">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </header>
+
+    <main class="results-content">
+      <!-- Loading -->
+      <div id="loading" class="loading hidden">
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p class="loading-text">검색 중...</p>
+      </div>
+
+      <!-- Error -->
+      <div id="error" class="error-message hidden"></div>
+
+      <!-- Answer (info type) -->
+      <section id="answer-section" class="answer-section hidden"></section>
+
+      <!-- Sites (site type) -->
+      <section id="sites-section" class="sites-section hidden"></section>
+
+      <!-- Sources (info type) -->
+      <section id="sources-section" class="sources-section hidden"></section>
+
+      <!-- Ad Placeholder -->
+      <div id="ad-slot" class="ad-slot hidden">
+        <div class="ad-label">광고</div>
+        <div class="ad-content">
+          <!-- Google AdSense will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Related Searches -->
+      <section id="related-section" class="related-section hidden"></section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
