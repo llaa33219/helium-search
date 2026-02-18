@@ -103,7 +103,7 @@ wrangler deploy
 | 변수 | 필수 | 설명 |
 |------|------|------|
 | `QWEN_API_KEY` | ✅ | DashScope API 키 |
-| `QWEN_MODEL` | ❌ | 모델명 (기본: qwen-turbo) |
+| `QWEN_MODEL` | ❌ | 모델명 (기본: qwen3.5-plus) |
 | `SEARCH_TIMEOUT_MS` | ❌ | 검색 타임아웃 (기본: 3000ms) |
 | `MAX_RESULTS` | ❌ | Qwen 전달 최대 결과 수 (기본: 15) |
 | `GOOGLE_API_KEY` | ❌ | Google Custom Search API 키 |

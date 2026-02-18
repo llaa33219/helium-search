@@ -278,7 +278,7 @@ async function callQwen(query, results, env) {
           Authorization: `Bearer ${env.QWEN_API_KEY}`,
         },
         body: JSON.stringify({
-          model: env.QWEN_MODEL || 'qwen-turbo',
+          model: env.QWEN_MODEL || 'qwen3.5-plus',
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
             { role: 'user', content: userPrompt },

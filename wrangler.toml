@@ -3,7 +3,7 @@ main = "worker/index.js"
 compatibility_date = "2024-12-01"
 
 [vars]
-QWEN_MODEL = "qwen-turbo"
+QWEN_MODEL = "qwen3.5-plus"
 SEARCH_TIMEOUT_MS = "3000"
 MAX_RESULTS = "15"
 
