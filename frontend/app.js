@@ -368,7 +368,7 @@ function applyTranslations() {
   });
 
   const loadingText = document.querySelector('.loading-text');
-  if (loadingText) loadingText.textContent = t('searching');
+  if (loadingText && !statusTimer) loadingText.textContent = t('statusSearching');
 
   const adLabel = document.querySelector('.ad-label');
   if (adLabel) adLabel.textContent = t('ad');
@@ -457,6 +457,7 @@ function setLoading(on) {
 }
 
 function startStatusMessages() {
+  stopStatusMessages();
   const loadingText = document.querySelector('.loading-text');
   if (!loadingText) return;
   loadingText.textContent = t('statusSearching');

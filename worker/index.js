@@ -382,7 +382,7 @@ const WIKI_LANGS = {
 };
 
 const RESPONSE_LANG_NAMES = {
-  ko: 'Korean', ja: 'Japanese', zh: 'Chinese', es: 'Spanish',
+  en: 'English', ko: 'Korean', ja: 'Japanese', zh: 'Chinese', es: 'Spanish',
   fr: 'French', de: 'German', ru: 'Russian', pt: 'Portuguese',
   ar: 'Arabic', vi: 'Vietnamese', th: 'Thai', hi: 'Hindi',
   it: 'Italian', tr: 'Turkish', nl: 'Dutch', pl: 'Polish', id: 'Indonesian',
@@ -504,7 +504,7 @@ async function callQwen(query, results, env, lang) {
   const userPrompt = `Query: ${query}\n\nSearch Results:\n${searchContext}`;
 
   let systemPrompt = SYSTEM_PROMPT;
-  if (lang && lang !== 'en' && RESPONSE_LANG_NAMES[lang]) {
+  if (lang && RESPONSE_LANG_NAMES[lang]) {
     systemPrompt = SYSTEM_PROMPT.replace(
       'Respond in the same language as the query.',
       `Always respond in ${RESPONSE_LANG_NAMES[lang]}, regardless of the query language.`,
