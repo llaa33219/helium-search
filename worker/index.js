@@ -37,7 +37,8 @@ export default {
       if (!query || !query.trim()) {
         return jsonResponse({ error: 'Missing query parameter "q"' }, 400);
       }
-      return handleSearch(query.trim(), env);
+      const lang = url.searchParams.get('lang') || '';
+      return handleSearch(query.trim(), env, lang);
     }
 
     if (url.pathname === '/api/debug' && request.method === 'GET') {
@@ -136,7 +137,7 @@ async function handleDebug(query, env) {
   });
 }
 
-async function handleSearch(query, env) {
+async function handleSearch(query, env, lang) {
   if (query.length > MAX_QUERY_LENGTH) {
     return jsonResponse({ error: `Query too long (max ${MAX_QUERY_LENGTH} characters)` }, 400);
   }
@@ -156,7 +157,7 @@ async function handleSearch(query, env) {
     }
 
     const deduplicated = deduplicateResults(rawResults, parseInt(env.MAX_RESULTS) || 15);
-    const aiResponse = await callQwen(query, deduplicated, env);
+    const aiResponse = await callQwen(query, deduplicated, env, lang);
 
     return jsonResponse(aiResponse);
   } catch (err) {
@@ -380,6 +381,13 @@ const WIKI_LANGS = {
   tr: 'tr', vi: 'vi', id: 'id',
 };
 
+const RESPONSE_LANG_NAMES = {
+  ko: 'Korean', ja: 'Japanese', zh: 'Chinese', es: 'Spanish',
+  fr: 'French', de: 'German', ru: 'Russian', pt: 'Portuguese',
+  ar: 'Arabic', vi: 'Vietnamese', th: 'Thai', hi: 'Hindi',
+  it: 'Italian', tr: 'Turkish', nl: 'Dutch', pl: 'Polish', id: 'Indonesian',
+};
+
 const NO_RESULTS_MSG = {
   ko: '검색 결과를 찾을 수 없습니다.',
   ja: '検索結果が見つかりませんでした。',
@@ -484,7 +492,7 @@ function normalizeUrl(url) {
   }
 }
 
-async function callQwen(query, results, env) {
+async function callQwen(query, results, env, lang) {
   if (!env.QWEN_API_KEY) {
     return buildFallbackResponse(query, results);
   }
@@ -494,6 +502,14 @@ async function callQwen(query, results, env) {
     .join('\n\n');
 
   const userPrompt = `Query: ${query}\n\nSearch Results:\n${searchContext}`;
+
+  let systemPrompt = SYSTEM_PROMPT;
+  if (lang && lang !== 'en' && RESPONSE_LANG_NAMES[lang]) {
+    systemPrompt = SYSTEM_PROMPT.replace(
+      'Respond in the same language as the query.',
+      `Always respond in ${RESPONSE_LANG_NAMES[lang]}, regardless of the query language.`,
+    );
+  }
 
   try {
     const res = await fetchWithTimeout(
@@ -506,7 +522,7 @@ async function callQwen(query, results, env) {
         body: JSON.stringify({
           model: env.QWEN_MODEL || 'qwen3.5-plus',
           messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
           ],
           temperature: 0.3,

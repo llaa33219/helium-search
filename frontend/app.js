@@ -12,6 +12,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `View sources (${n})`,
     alsoSearch: 'People also search for',
     ad: 'Ad',
+    statusSearching: 'Searching the web...',
+    statusAnalyzing: 'Analyzing results...',
+    statusGenerating: 'Generating answer...',
   },
   ko: {
     tagline: '가볍고 깔끔한 AI 검색엔진',
@@ -26,6 +29,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `출처 보기 (${n}개)`,
     alsoSearch: '이것도 검색해 보세요',
     ad: '광고',
+    statusSearching: '웹 검색 중...',
+    statusAnalyzing: '결과 분석 중...',
+    statusGenerating: '답변 생성 중...',
   },
   ja: {
     tagline: '軽量でクリーンなAI検索エンジン',
@@ -40,6 +46,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `出典を見る (${n}件)`,
     alsoSearch: 'こちらも検索',
     ad: '広告',
+    statusSearching: 'ウェブを検索中...',
+    statusAnalyzing: '結果を分析中...',
+    statusGenerating: '回答を生成中...',
   },
   zh: {
     tagline: '轻量简洁的AI搜索引擎',
@@ -54,6 +63,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `查看来源 (${n}个)`,
     alsoSearch: '相关搜索',
     ad: '广告',
+    statusSearching: '正在搜索网络...',
+    statusAnalyzing: '正在分析结果...',
+    statusGenerating: '正在生成回答...',
   },
   es: {
     tagline: 'Un motor de búsqueda IA ligero y limpio.',
@@ -68,6 +80,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Ver fuentes (${n})`,
     alsoSearch: 'Búsquedas relacionadas',
     ad: 'Anuncio',
+    statusSearching: 'Buscando en la web...',
+    statusAnalyzing: 'Analizando resultados...',
+    statusGenerating: 'Generando respuesta...',
   },
   fr: {
     tagline: 'Un moteur de recherche IA léger et épuré.',
@@ -82,6 +97,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Voir les sources (${n})`,
     alsoSearch: 'Recherches associées',
     ad: 'Annonce',
+    statusSearching: 'Recherche sur le web...',
+    statusAnalyzing: 'Analyse des résultats...',
+    statusGenerating: 'Génération de la réponse...',
   },
   de: {
     tagline: 'Eine leichte und saubere KI-Suchmaschine.',
@@ -96,6 +114,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Quellen anzeigen (${n})`,
     alsoSearch: 'Ähnliche Suchanfragen',
     ad: 'Anzeige',
+    statusSearching: 'Suche im Web...',
+    statusAnalyzing: 'Ergebnisse werden analysiert...',
+    statusGenerating: 'Antwort wird generiert...',
   },
   ru: {
     tagline: 'Лёгкий и чистый ИИ поисковик.',
@@ -110,6 +131,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Показать источники (${n})`,
     alsoSearch: 'Похожие запросы',
     ad: 'Реклама',
+    statusSearching: 'Поиск в сети...',
+    statusAnalyzing: 'Анализ результатов...',
+    statusGenerating: 'Генерация ответа...',
   },
   pt: {
     tagline: 'Um mecanismo de busca IA leve e limpo.',
@@ -124,6 +148,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Ver fontes (${n})`,
     alsoSearch: 'Pesquisas relacionadas',
     ad: 'Anúncio',
+    statusSearching: 'Pesquisando na web...',
+    statusAnalyzing: 'Analisando resultados...',
+    statusGenerating: 'Gerando resposta...',
   },
   ar: {
     tagline: 'محرك بحث ذكي خفيف ونظيف',
@@ -138,6 +165,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `عرض المصادر (${n})`,
     alsoSearch: 'عمليات بحث ذات صلة',
     ad: 'إعلان',
+    statusSearching: 'جاري البحث في الويب...',
+    statusAnalyzing: 'جاري تحليل النتائج...',
+    statusGenerating: 'جاري إنشاء الإجابة...',
   },
   vi: {
     tagline: 'Công cụ tìm kiếm AI nhẹ và sạch.',
@@ -152,6 +182,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Xem nguồn (${n})`,
     alsoSearch: 'Tìm kiếm liên quan',
     ad: 'Quảng cáo',
+    statusSearching: 'Đang tìm kiếm trên web...',
+    statusAnalyzing: 'Đang phân tích kết quả...',
+    statusGenerating: 'Đang tạo câu trả lời...',
   },
   th: {
     tagline: 'เครื่องมือค้นหา AI ที่เบาและสะอาด',
@@ -166,6 +199,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `ดูแหล่งที่มา (${n})`,
     alsoSearch: 'การค้นหาที่เกี่ยวข้อง',
     ad: 'โฆษณา',
+    statusSearching: 'กำลังค้นหาในเว็บ...',
+    statusAnalyzing: 'กำลังวิเคราะห์ผลลัพธ์...',
+    statusGenerating: 'กำลังสร้างคำตอบ...',
   },
   hi: {
     tagline: 'एक हल्का और साफ AI खोज इंजन',
@@ -180,6 +216,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `स्रोत देखें (${n})`,
     alsoSearch: 'संबंधित खोजें',
     ad: 'विज्ञापन',
+    statusSearching: 'वेब पर खोज रहा है...',
+    statusAnalyzing: 'परिणामों का विश्लेषण कर रहा है...',
+    statusGenerating: 'उत्तर तैयार कर रहा है...',
   },
   it: {
     tagline: 'Un motore di ricerca IA leggero e pulito.',
@@ -194,6 +233,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Vedi fonti (${n})`,
     alsoSearch: 'Ricerche correlate',
     ad: 'Annuncio',
+    statusSearching: 'Ricerca nel web...',
+    statusAnalyzing: 'Analisi dei risultati...',
+    statusGenerating: 'Generazione della risposta...',
   },
   tr: {
     tagline: 'Hafif ve temiz bir AI arama motoru.',
@@ -208,6 +250,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Kaynakları görüntüle (${n})`,
     alsoSearch: 'İlgili aramalar',
     ad: 'Reklam',
+    statusSearching: "Web'de aranıyor...",
+    statusAnalyzing: 'Sonuçlar analiz ediliyor...',
+    statusGenerating: 'Yanıt oluşturuluyor...',
   },
   nl: {
     tagline: 'Een lichte en schone AI-zoekmachine.',
@@ -222,6 +267,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Bronnen bekijken (${n})`,
     alsoSearch: 'Gerelateerde zoekopdrachten',
     ad: 'Advertentie',
+    statusSearching: 'Zoeken op het web...',
+    statusAnalyzing: 'Resultaten analyseren...',
+    statusGenerating: 'Antwoord genereren...',
   },
   pl: {
     tagline: 'Lekka i czysta wyszukiwarka AI.',
@@ -236,6 +284,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Pokaż źródła (${n})`,
     alsoSearch: 'Powiązane wyszukiwania',
     ad: 'Reklama',
+    statusSearching: 'Wyszukiwanie w sieci...',
+    statusAnalyzing: 'Analiza wyników...',
+    statusGenerating: 'Generowanie odpowiedzi...',
   },
   id: {
     tagline: 'Mesin pencari AI yang ringan dan bersih.',
@@ -250,6 +301,9 @@ const TRANSLATIONS = {
     sourcesCount: (n) => `Lihat sumber (${n})`,
     alsoSearch: 'Pencarian terkait',
     ad: 'Iklan',
+    statusSearching: 'Mencari di web...',
+    statusAnalyzing: 'Menganalisis hasil...',
+    statusGenerating: 'Membuat jawaban...',
   },
 };
 
@@ -394,7 +448,43 @@ function showView(name) {
 
 function setLoading(on) {
   els.loading.classList.toggle('hidden', !on);
-  if (on) clearResults();
+  if (on) {
+    clearResults();
+    startStatusMessages();
+  } else {
+    stopStatusMessages();
+  }
+}
+
+function startStatusMessages() {
+  const loadingText = document.querySelector('.loading-text');
+  if (!loadingText) return;
+  loadingText.textContent = t('statusSearching');
+  loadingText.classList.remove('fade');
+
+  let step = 0;
+  const steps = ['statusSearching', 'statusAnalyzing', 'statusGenerating'];
+
+  statusTimer = setInterval(() => {
+    step++;
+    if (step >= steps.length) {
+      clearInterval(statusTimer);
+      statusTimer = null;
+      return;
+    }
+    loadingText.classList.add('fade');
+    setTimeout(() => {
+      loadingText.textContent = t(steps[step]);
+      loadingText.classList.remove('fade');
+    }, 200);
+  }, 2500);
+}
+
+function stopStatusMessages() {
+  if (statusTimer) {
+    clearInterval(statusTimer);
+    statusTimer = null;
+  }
 }
 
 function clearResults() {
@@ -443,6 +533,7 @@ function safeUrl(url) {
 }
 
 let currentSearchId = 0;
+let statusTimer = null;
 
 async function searchQuery(query) {
   const searchId = ++currentSearchId;
@@ -458,7 +549,7 @@ async function searchQuery(query) {
   history.pushState(null, '', url.toString());
 
   try {
-    const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}&lang=${currentLang}`);
     if (searchId !== currentSearchId) return;
     const data = await res.json();
 

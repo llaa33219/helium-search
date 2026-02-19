@@ -2,6 +2,10 @@ name = "helium-search"
 main = "worker/index.js"
 compatibility_date = "2026-02-18"
 
+[[routes]]
+pattern = "helium-search.blp.sh"
+custom_domain = true
+
 [assets]
 directory = "./frontend"
 binding = "ASSETS"

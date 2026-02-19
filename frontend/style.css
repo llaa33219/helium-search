@@ -319,6 +319,11 @@ body {
   margin-top: 16px;
   font-size: 0.9rem;
   color: var(--color-text-muted);
+  transition: opacity 200ms ease;
+}
+
+.loading-text.fade {
+  opacity: 0;
 }
 
 /* ── Error ── */
