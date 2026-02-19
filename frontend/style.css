@@ -228,7 +228,8 @@ body {
 }
 
 .results-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 20px;
   padding: 16px 24px;
@@ -245,7 +246,7 @@ body {
   color: var(--color-text);
   text-decoration: none;
   letter-spacing: -0.02em;
-  flex-shrink: 0;
+  justify-self: start;
   transition: opacity var(--transition-fast);
 }
 
@@ -254,7 +255,8 @@ body {
 }
 
 .search-form--results {
-  flex: 1;
+  justify-self: center;
+  width: 100%;
   max-width: 560px;
 }
 
@@ -730,7 +732,7 @@ body {
   position: relative;
   top: auto;
   right: auto;
-  flex-shrink: 0;
+  justify-self: end;
 }
 
 /* ── RTL Support ── */
@@ -774,10 +776,6 @@ body {
 }
 
 [dir="rtl"] .related-chip {
-  flex-direction: row-reverse;
-}
-
-[dir="rtl"] .results-header {
   flex-direction: row-reverse;
 }
 
