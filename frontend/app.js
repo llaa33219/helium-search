@@ -573,6 +573,8 @@ async function searchQuery(query) {
     if (data.related && data.related.length > 0) {
       renderRelated(data.related);
     }
+
+    showAd();
   } catch {
     setLoading(false);
     showError(t('errorNetwork'));
@@ -633,6 +635,17 @@ function renderSources(sources) {
     const expanded = toggleBtn.classList.toggle('expanded');
     sourcesList.classList.toggle('expanded', expanded);
   });
+}
+
+function showAd() {
+  const adContent = els.adSlot.querySelector('.ad-content');
+  adContent.innerHTML = '<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8053045122194729" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>';
+  els.adSlot.classList.remove('hidden');
+  try {
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  } catch (e) {
+    // AdSense not loaded or blocked
+  }
 }
 
 function renderRelated(items) {
